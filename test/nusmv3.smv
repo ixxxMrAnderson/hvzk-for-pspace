@@ -1,0 +1,12 @@
+MODULE main
+
+VAR
+    var1 : boolean;
+    var2 : boolean;
+    var3 : boolean;
+
+INIT !var1 & !var2 & !var3;
+TRANS parity xor next(parity);
+
+DEFINE
+    parity := var1 xor var2 xor var3;

@@ -1,0 +1,19 @@
+MODULE main
+
+VAR
+    var1 : boolean;
+    var2 : boolean;
+    var3 : boolean;
+
+INIT var1 | var2 & var3
+INIT var1 & var2 | var3
+TRANS
+    case var1 : var2 | !(var3 xor var1);
+         next(var3 xor swap1) : parity;
+         TRUE :
+         case var1 : var2; TRUE : FALSE; esac;
+    esac
+
+DEFINE
+    swap1 := var1 = next(var1) & var2 = next(var3) & var3 = next(var2); 
+    parity := var1 xor var2 xor var3;

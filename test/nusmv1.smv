@@ -1,0 +1,18 @@
+MODULE main
+
+VAR
+    var1 : boolean; -- comment
+    var2 : boolean;
+    var3 : boolean;
+
+INIT parity;
+INIT !!var1;
+TRANS swap1 | swap2;
+
+DEFINE
+    /-- 
+    Multiline comment
+    --/
+    swap1 := var1 = next(var1) & var2 = next(var3) & var3 = next(var2); 
+    swap2 := var3 = next(var3) & var2 = next(var1) & var1 = next(var2);
+    parity := var1 xor var2 xor var3;
