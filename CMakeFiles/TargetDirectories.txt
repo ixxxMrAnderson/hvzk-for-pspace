@@ -1,0 +1,3 @@
+/Users/haotianchu/Documents/hvzk for pspace/CMakeFiles/test_solver.dir
+/Users/haotianchu/Documents/hvzk for pspace/CMakeFiles/edit_cache.dir
+/Users/haotianchu/Documents/hvzk for pspace/CMakeFiles/rebuild_cache.dir

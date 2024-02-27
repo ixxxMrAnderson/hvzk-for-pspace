@@ -24,7 +24,7 @@ void server_run(Server* server, Array_t<u8> ip, u16 port){
         printf("The server could not be established\n");
         exit(1);
     }
-    int status= bind(server->sd, (struct sockaddr*) &(server->addr),sizeof(server->addr));
+    int status= ::bind(server->sd, (struct sockaddr*) &(server->addr),sizeof(server->addr));
     if(status < 0){
         printf("Could not bind the server\n");
         exit(1);

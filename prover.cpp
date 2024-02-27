@@ -1,5 +1,6 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include "emp-zk/emp-zk-arith/int_fp.h"
 
 struct Prover_local {
     Bdd_store store;

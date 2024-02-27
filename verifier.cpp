@@ -240,7 +240,7 @@ s64 verifier_sumcheck(Verifier* veri) {
         case Expr::FALSE:
         case Expr::TRUE:
         case Expr::VAR:     return expr_it;
-        case Expr::BINOP:   return max(expr.binop.child0, expr.binop.child1);
+        case Expr::BINOP:   return std::max(expr.binop.child0, expr.binop.child1);
         case Expr::PARTIAL: return expr.partial.child;
         case Expr::DEGREE:  return expr.degree.child;
         case Expr::RENAME: return expr.rename.child;
