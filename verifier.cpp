@@ -442,3 +442,14 @@ bool sumcheck(Verifier* veri, Prover* prover, BoolIO<NetIO>* io, int party, u8 t
     // veri->time_duration += os_now() - veri->time_last;
     return 1;
 }
+
+
+// Name    // Instance size // Solving time // Proving time // Byte sent
+// TRUE10  // 9.83KB        // 21.45ms      // 618.70ms     // 3.18MB
+// TRUE15  // 28.90KB       // 123.07ms     // 1.12s        // 6.21MB
+// TRUE20  // 69.88KB       // 2.22s        // 9.52s        // 14.07MB
+// TRUE25  // 126.63KB      // 43.53s       // 3m18s        // 27.21MB
+// FALSE10 // 9.80KB        // 19.76ms      // 591.92ms     // 3.18MB
+// FALSE15 // 28.93KB       // 124.99ms     // 1.09s        // 6.20MB
+// FALSE20 // 69.94KB       // 2.24s        // 9.26s        // 14.12MB
+// FALSE25 // 126.54KB      // 41.92s       // 3m18s        // 27.12MB

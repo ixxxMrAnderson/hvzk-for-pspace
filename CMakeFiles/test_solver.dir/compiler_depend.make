@@ -483,7 +483,6 @@ CMakeFiles/test_solver.dir/solver.cpp.o: solver.cpp \
   lib/os_linux.cpp \
   lib/rng.cpp \
   lib/stringstore.cpp \
-  pedersen.cpp \
   prover.cpp \
   server.cpp \
   smvparser.cpp \
@@ -494,29 +493,17 @@ CMakeFiles/test_solver.dir/solver.cpp.o: solver.cpp \
   /opt/homebrew/opt/openssl/include/openssl/bioerr.h \
   /opt/homebrew/opt/openssl/include/openssl/bn.h \
   /opt/homebrew/opt/openssl/include/openssl/bnerr.h \
-  /opt/homebrew/opt/openssl/include/openssl/buffer.h \
-  /opt/homebrew/opt/openssl/include/openssl/buffererr.h \
-  /opt/homebrew/opt/openssl/include/openssl/conf.h \
-  /opt/homebrew/opt/openssl/include/openssl/conferr.h \
   /opt/homebrew/opt/openssl/include/openssl/configuration.h \
-  /opt/homebrew/opt/openssl/include/openssl/conftypes.h \
   /opt/homebrew/opt/openssl/include/openssl/core.h \
   /opt/homebrew/opt/openssl/include/openssl/core_dispatch.h \
   /opt/homebrew/opt/openssl/include/openssl/crypto.h \
   /opt/homebrew/opt/openssl/include/openssl/cryptoerr.h \
   /opt/homebrew/opt/openssl/include/openssl/cryptoerr_legacy.h \
-  /opt/homebrew/opt/openssl/include/openssl/dh.h \
-  /opt/homebrew/opt/openssl/include/openssl/dherr.h \
-  /opt/homebrew/opt/openssl/include/openssl/dsa.h \
-  /opt/homebrew/opt/openssl/include/openssl/dsaerr.h \
   /opt/homebrew/opt/openssl/include/openssl/e_os2.h \
   /opt/homebrew/opt/openssl/include/openssl/ec.h \
   /opt/homebrew/opt/openssl/include/openssl/ecerr.h \
-  /opt/homebrew/opt/openssl/include/openssl/err.h \
   /opt/homebrew/opt/openssl/include/openssl/evp.h \
   /opt/homebrew/opt/openssl/include/openssl/evperr.h \
-  /opt/homebrew/opt/openssl/include/openssl/http.h \
-  /opt/homebrew/opt/openssl/include/openssl/lhash.h \
   /opt/homebrew/opt/openssl/include/openssl/macros.h \
   /opt/homebrew/opt/openssl/include/openssl/obj_mac.h \
   /opt/homebrew/opt/openssl/include/openssl/objects.h \
@@ -524,22 +511,10 @@ CMakeFiles/test_solver.dir/solver.cpp.o: solver.cpp \
   /opt/homebrew/opt/openssl/include/openssl/opensslconf.h \
   /opt/homebrew/opt/openssl/include/openssl/opensslv.h \
   /opt/homebrew/opt/openssl/include/openssl/params.h \
-  /opt/homebrew/opt/openssl/include/openssl/pem.h \
-  /opt/homebrew/opt/openssl/include/openssl/pemerr.h \
-  /opt/homebrew/opt/openssl/include/openssl/pkcs7.h \
-  /opt/homebrew/opt/openssl/include/openssl/pkcs7err.h \
-  /opt/homebrew/opt/openssl/include/openssl/rand.h \
-  /opt/homebrew/opt/openssl/include/openssl/randerr.h \
-  /opt/homebrew/opt/openssl/include/openssl/rsa.h \
-  /opt/homebrew/opt/openssl/include/openssl/rsaerr.h \
   /opt/homebrew/opt/openssl/include/openssl/safestack.h \
-  /opt/homebrew/opt/openssl/include/openssl/sha.h \
   /opt/homebrew/opt/openssl/include/openssl/stack.h \
   /opt/homebrew/opt/openssl/include/openssl/symhacks.h \
   /opt/homebrew/opt/openssl/include/openssl/types.h \
-  /opt/homebrew/opt/openssl/include/openssl/x509.h \
-  /opt/homebrew/opt/openssl/include/openssl/x509_vfy.h \
-  /opt/homebrew/opt/openssl/include/openssl/x509err.h \
   /usr/local/include/emp-ot/co.h \
   /usr/local/include/emp-ot/cot.h \
   /usr/local/include/emp-ot/emp-ot.h \
@@ -657,6 +632,8 @@ CMakeFiles/test_solver.dir/solver.cpp.o: solver.cpp \
 
 /usr/local/include/emp-zk/emp-vole/vole_triple.h:
 
+/usr/local/include/emp-zk/emp-vole/spfss_sender.h:
+
 /usr/local/include/emp-zk/emp-vole/preot.h:
 
 /usr/local/include/emp-zk/emp-vole/mpfss_reg.h:
@@ -669,6 +646,8 @@ CMakeFiles/test_solver.dir/solver.cpp.o: solver.cpp \
 
 /usr/local/include/emp-zk/edabit/auth_helper.h:
 
+/usr/local/include/emp-tool/utils/utils.hpp:
+
 /usr/local/include/emp-tool/utils/utils.h:
 
 /usr/local/include/emp-tool/utils/tccrh.h:
@@ -676,6 +655,8 @@ CMakeFiles/test_solver.dir/solver.cpp.o: solver.cpp \
 /usr/local/include/emp-tool/utils/sse2neon.h:
 
 /usr/local/include/emp-tool/utils/prp.h:
+
+/usr/local/include/emp-tool/utils/prg.h:
 
 /usr/local/include/emp-tool/utils/hash.h:
 
@@ -698,6 +679,8 @@ CMakeFiles/test_solver.dir/solver.cpp.o: solver.cpp \
 /usr/local/include/emp-tool/io/file_io_channel.h:
 
 /usr/local/include/emp-tool/gc/privacy_free_gen.h:
+
+/usr/local/include/emp-tool/gc/halfgate_gen.h:
 
 /usr/local/include/emp-tool/gc/halfgate_eva.h:
 
@@ -743,25 +726,7 @@ CMakeFiles/test_solver.dir/solver.cpp.o: solver.cpp \
 
 /usr/local/include/emp-ot/co.h:
 
-/opt/homebrew/opt/openssl/include/openssl/x509err.h:
-
-/opt/homebrew/opt/openssl/include/openssl/x509_vfy.h:
-
-/opt/homebrew/opt/openssl/include/openssl/x509.h:
-
 /opt/homebrew/opt/openssl/include/openssl/symhacks.h:
-
-/opt/homebrew/opt/openssl/include/openssl/rsa.h:
-
-/usr/local/include/emp-tool/utils/prg.h:
-
-/opt/homebrew/opt/openssl/include/openssl/pkcs7.h:
-
-/usr/local/include/emp-tool/utils/utils.hpp:
-
-/opt/homebrew/opt/openssl/include/openssl/pemerr.h:
-
-/opt/homebrew/opt/openssl/include/openssl/pem.h:
 
 /opt/homebrew/opt/openssl/include/openssl/opensslv.h:
 
@@ -771,15 +736,7 @@ CMakeFiles/test_solver.dir/solver.cpp.o: solver.cpp \
 
 /opt/homebrew/opt/openssl/include/openssl/obj_mac.h:
 
-/opt/homebrew/opt/openssl/include/openssl/lhash.h:
-
-/opt/homebrew/opt/openssl/include/openssl/http.h:
-
 /opt/homebrew/opt/openssl/include/openssl/evperr.h:
-
-/usr/local/include/emp-tool/gc/halfgate_gen.h:
-
-/opt/homebrew/opt/openssl/include/openssl/err.h:
 
 /opt/homebrew/opt/openssl/include/openssl/ecerr.h:
 
@@ -787,25 +744,7 @@ CMakeFiles/test_solver.dir/solver.cpp.o: solver.cpp \
 
 /opt/homebrew/opt/openssl/include/openssl/e_os2.h:
 
-/usr/local/include/emp-zk/emp-vole/spfss_sender.h:
-
-/opt/homebrew/opt/openssl/include/openssl/dsaerr.h:
-
-/opt/homebrew/opt/openssl/include/openssl/dsa.h:
-
-/opt/homebrew/opt/openssl/include/openssl/dh.h:
-
 /opt/homebrew/opt/openssl/include/openssl/cryptoerr_legacy.h:
-
-/opt/homebrew/opt/openssl/include/openssl/conferr.h:
-
-/opt/homebrew/opt/openssl/include/openssl/conf.h:
-
-/opt/homebrew/opt/openssl/include/openssl/buffererr.h:
-
-/opt/homebrew/opt/openssl/include/openssl/conftypes.h:
-
-/opt/homebrew/opt/openssl/include/openssl/buffer.h:
 
 /usr/local/include/emp-tool/utils/mitccrh.h:
 
@@ -1273,8 +1212,6 @@ expr.cpp:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/c++/v1/__memory/uninitialized_algorithms.h:
 
-/opt/homebrew/opt/openssl/include/openssl/pkcs7err.h:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/c++/v1/__utility/piecewise_construct.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/c++/v1/__algorithm/pop_heap.h:
@@ -1304,8 +1241,6 @@ expr.cpp:
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/c++/v1/__algorithm/stable_partition.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/sys/_select.h:
-
-/opt/homebrew/opt/openssl/include/openssl/dherr.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/c++/v1/__config:
 
@@ -1467,10 +1402,6 @@ lib/number.cpp:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/c++/v1/iostream:
 
-/opt/homebrew/opt/openssl/include/openssl/rsaerr.h:
-
-pedersen.cpp:
-
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/c++/v1/__utility/exchange.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/c++/v1/__functional/invoke.h:
@@ -1530,8 +1461,6 @@ pedersen.cpp:
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/c++/v1/__iterator/iter_move.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/c++/v1/__errc:
-
-/opt/homebrew/opt/openssl/include/openssl/sha.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/c++/v1/__algorithm/partition.h:
 
@@ -1653,8 +1582,6 @@ pedersen.cpp:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/sys/_pthread/_pthread_once_t.h:
 
-/opt/homebrew/opt/openssl/include/openssl/randerr.h:
-
 /opt/homebrew/opt/openssl/include/openssl/bio.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/c++/v1/__utility/integer_sequence.h:
@@ -1754,8 +1681,6 @@ pedersen.cpp:
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/AvailabilityInternal.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/c++/v1/deque:
-
-/opt/homebrew/opt/openssl/include/openssl/rand.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk/usr/include/c++/v1/cmath:
 

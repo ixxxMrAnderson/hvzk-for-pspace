@@ -594,31 +594,6 @@ CMakeFiles/test_solver.dir/solver.cpp.o: \
   /usr/local/include/emp-zk/edabit/auth_helper.h \
   /usr/local/include/emp-zk/emp-zk-arith/zk_fp_exec_prover.h \
   /usr/local/include/emp-zk/emp-zk-arith/zk_fp_exec_verifier.h \
-  /Users/haotianchu/Documents/PSPACE_vole/pedersen.cpp \
-  /opt/homebrew/opt/openssl/include/openssl/err.h \
-  /opt/homebrew/opt/openssl/include/openssl/lhash.h \
-  /opt/homebrew/opt/openssl/include/openssl/pem.h \
-  /opt/homebrew/opt/openssl/include/openssl/x509.h \
-  /opt/homebrew/opt/openssl/include/openssl/buffer.h \
-  /opt/homebrew/opt/openssl/include/openssl/buffererr.h \
-  /opt/homebrew/opt/openssl/include/openssl/rsa.h \
-  /opt/homebrew/opt/openssl/include/openssl/rsaerr.h \
-  /opt/homebrew/opt/openssl/include/openssl/dsa.h \
-  /opt/homebrew/opt/openssl/include/openssl/dh.h \
-  /opt/homebrew/opt/openssl/include/openssl/dherr.h \
-  /opt/homebrew/opt/openssl/include/openssl/dsaerr.h \
-  /opt/homebrew/opt/openssl/include/openssl/sha.h \
-  /opt/homebrew/opt/openssl/include/openssl/x509err.h \
-  /opt/homebrew/opt/openssl/include/openssl/x509_vfy.h \
-  /opt/homebrew/opt/openssl/include/openssl/pkcs7.h \
-  /opt/homebrew/opt/openssl/include/openssl/pkcs7err.h \
-  /opt/homebrew/opt/openssl/include/openssl/http.h \
-  /opt/homebrew/opt/openssl/include/openssl/conf.h \
-  /opt/homebrew/opt/openssl/include/openssl/conferr.h \
-  /opt/homebrew/opt/openssl/include/openssl/conftypes.h \
-  /opt/homebrew/opt/openssl/include/openssl/pemerr.h \
-  /opt/homebrew/opt/openssl/include/openssl/rand.h \
-  /opt/homebrew/opt/openssl/include/openssl/randerr.h \
   /Users/haotianchu/Documents/PSPACE_vole/expr.cpp \
   /Users/haotianchu/Documents/PSPACE_vole/bdd.cpp \
   /Users/haotianchu/Documents/PSPACE_vole/prover.cpp \

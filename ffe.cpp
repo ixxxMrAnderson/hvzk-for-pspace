@@ -1,6 +1,5 @@
 #include "emp-tool/emp-tool.h"
 #include "emp-zk/emp-zk-arith/emp-zk-arith.h"
-#include "pedersen.cpp"
 
 #define HIGH64(x) _mm_extract_epi64((block)x, 1)
 
@@ -234,20 +233,6 @@ Commitment* Commit(uint64_t value, int party = PUBLIC, u8 type = Commitment::VOL
     }
 }
 
-Commitment* Commit(s8 value, int party = PUBLIC, u8 type = Commitment::VOLE){
-    if (type == Commitment::VOLE) {
-        VOLECommitment* ret = new VOLECommitment;
-        if (value < 0) {
-            ret->intfp = IntFp((uint64_t)(-value), party).negate();
-            return ret;
-        } else {
-            ret->intfp = IntFp(value, party);
-            return ret;
-        }
-    } else {
-        
-    }
-}
 
 void polynomial_print(Polynomial p) {
     bool first = true;
