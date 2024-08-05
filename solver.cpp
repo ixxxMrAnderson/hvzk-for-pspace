@@ -338,9 +338,6 @@ s64 main_instance(Args* args, Array_dyn<Expr>* out_exprs, Array_dyn<u8>* out_sta
         expr_from_dimacs_try(out_exprs, dimacs, args->expr_flags);
         if (global_os.status.bad()) return 0;
         
-        format_print_into(out_stats, "    Variables:      %-10d\n", dimacs.n_variables);
-        format_print_into(out_stats, "    Clauses:        %-10d\n", dimacs.n_clauses);
-        format_print_into(out_stats, "    Quantifiers:    %-10d\n", dimacs.n_quantifiers);
         return dimacs_args.out_bytes_read;
         
     } else if (args->format == Args::FORMAT_SMV) {
@@ -353,7 +350,6 @@ s64 main_instance(Args* args, Array_dyn<Expr>* out_exprs, Array_dyn<u8>* out_sta
         smvparser_generate_query(&smv, args->steps);
         *out_exprs = smv.exprs;
         *out_n_variables = smv.size[Smv_vartype::STATE];
-        format_print_into(out_stats, "    Variables:      %-10d\n", smv.n_variables);
         
         return smv.bytes_read;
     } else {

@@ -16,7 +16,7 @@ struct ffe {
     constexpr ffe(): x{0} {}
     constexpr ffe(s32 x_): x{x_ < 0 ? x_ + mod : x_} {}
     constexpr ffe(u64 x_): x{x_} {x %= mod;}
-    constexpr ffe(s64 x_): x{0} {x_ %= (s64)mod; x = x_ < 0 ? x_+mod : x_;}
+    // constexpr ffe(s64 x_): x{0} {x_ %= (s64)mod; x = x_ < 0 ? x_+mod : x_;}
 
     static constexpr ffe make_invalid() { ffe x; x.x = -1; return x; }
     bool is_invalid() { return x == (u64)-1; }

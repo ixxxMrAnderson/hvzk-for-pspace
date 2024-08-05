@@ -88,10 +88,10 @@ struct Format_print_arg {
         char const* str;
     };
 
-    Format_print_arg(u8 y): type{0}, x{y} {}
-    Format_print_arg(s8 y): type{0}, xs{y} {}
-    Format_print_arg(u16 y): type{0}, x{y} {}
-    Format_print_arg(s16 y): type{0}, xs{y} {}
+    // Format_print_arg(u8 y): type{0}, x{y} {}
+    // Format_print_arg(s8 y): type{0}, xs{y} {}
+    // Format_print_arg(u16 y): type{0}, x{y} {}
+    // Format_print_arg(s16 y): type{0}, xs{y} {}
     Format_print_arg(u32 y): type{0}, x{y} {}
     Format_print_arg(s32 y): type{0}, xs{y} {}
     Format_print_arg(u64 y): type{0}, x{y} {}
@@ -147,7 +147,7 @@ void format_print_into(Array_dyn<u8>* arr, char const* fmt, T arg, Args... args)
                 ++i;
             }
             s64 index = arr->size;
-            _format_print_dispatch(arr, fmt+i-1, arg);
+            _format_print_dispatch(arr, fmt+i-1, (T)arg);
             s64 left = w - (arr->size - index);
             if (left > 0) {
                 array_append_zero(arr, left);
@@ -165,7 +165,7 @@ void format_print_into(Array_dyn<u8>* arr, char const* fmt, T arg, Args... args)
         s64 i = 0;
         while (fmt[i] and fmt[i] != '%') ++i;
         array_append(arr, {(u8*)fmt, i});
-        return format_print_into(arr, fmt+i, arg, args...);
+        return format_print_into(arr, fmt+i, (T)arg, args...);
     }
 }
 

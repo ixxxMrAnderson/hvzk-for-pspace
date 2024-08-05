@@ -125,7 +125,7 @@ u8 _op_invert(u8 op, u8 var, Commitment* x, Commitment* y, Commitment** out_x, i
     if (a->reveal() == 0) return b->add(y->negate())->reveal() == 0 ? 2 : 0;
     ffe k;
     if (party == ALICE) {
-        ffe yf(y->revealALICE()), bf(b->revealALICE()), af(a->revealALICE());
+        ffe yf((u64)y->revealALICE()), bf((u64)b->revealALICE()), af((u64)a->revealALICE());
         k = (yf - bf) / af;
         // format_print("-----------a=%d, b=%d, y=%d, k=%d--------\n", af.x, bf.x, yf.x, k.x);
     }
@@ -268,7 +268,7 @@ bool sumcheck(Verifier* veri, Prover* prover, BoolIO<NetIO>* io, int party, u8 t
             // Pick a random value
             // Technically speaking, we generate the random number only after talking to Prover, but it is deterministic anyway and this way we do not have to store the polynomials sent by Prover.
             
-            ffe r = ffe(HIGH64(io->get_hash_block()));
+            ffe r = ffe((u64)HIGH64(io->get_hash_block()));
             
             if (verbose) {
                 printf("    assignments differ on variable x%u\n", i_var);
@@ -415,9 +415,9 @@ bool sumcheck(Verifier* veri, Prover* prover, BoolIO<NetIO>* io, int party, u8 t
             }
             // format_print("---------------%d\n", p[0]->add(p[1])->mult(e_var_value.x)->add(p[2])->add(a.value->negate())->reveal());
             uint64_t ra=p[0]->reveal(), rb=p[1]->reveal(), rc=p[2]->reveal();
-            ffe fa(p[0]->reveal()), fb(p[1]->reveal()), fc(p[2]->reveal());
+            ffe fa((u64)p[0]->reveal()), fb((u64)p[1]->reveal()), fc((u64)p[2]->reveal());
             // if ((ra+rb)*e_var_value.x+rc!=a.value->reveal()) return 0;
-            if ((fa+fb) * e_var_value + fc != ffe(a.value->reveal())) {
+            if ((fa+fb) * e_var_value + fc != ffe((u64)a.value->reveal())) {
                 u128 z = 1<<12;
                 printf("%llu\n", z);
                 printf("ffe wrong\n");
@@ -426,7 +426,7 @@ bool sumcheck(Verifier* veri, Prover* prover, BoolIO<NetIO>* io, int party, u8 t
             ((p[0]->add(p[1]))->mult(e_var_value.x)->add(p[2]))->CommitEqual(a.value);
 
             // HVZK: Prover homomorphically computes the commitment of 'p(r)'
-            ffe r = ffe(HIGH64(io->get_hash_block()));
+            ffe r = ffe((u64)HIGH64(io->get_hash_block()));
             if (verbose) {
                 printf("  re-assign x%d to %llx, add assertion to %u\n", e.var, r.x, e.child);
             }
