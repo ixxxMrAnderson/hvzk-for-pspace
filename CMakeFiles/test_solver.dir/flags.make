@@ -4,7 +4,7 @@
 # compile CXX with /Library/Developer/CommandLineTools/usr/bin/c++
 CXX_DEFINES = -DEMP_CIRCUIT_PATH=/usr/local/include/emp-tool/circuits/files/ -DEMP_ENABLE_RDSEED
 
-CXX_INCLUDES = -I"/Users/haotianchu/Documents/hvzk for pspace" -I/usr/local/include -I/opt/homebrew/opt/openssl/include
+CXX_INCLUDES = -I/Users/haotianchu/Documents/PSPACE_vole -I/usr/local/include -I/opt/homebrew/opt/openssl/include
 
 CXX_FLAGSarm64 =   -pthread -Wall -funroll-loops -Wno-ignored-attributes -Wno-unused-result -march=armv8-a+simd+crypto+crc -std=c++11 -O3  -pthread -Wall -funroll-loops -Wno-ignored-attributes -Wno-unused-result -march=armv8-a+simd+crypto+crc -std=c++14 -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.0.sdk -mmacosx-version-min=12.5
 

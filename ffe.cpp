@@ -1,3 +1,9 @@
+#include "emp-tool/emp-tool.h"
+#include "emp-zk/emp-zk-arith/emp-zk-arith.h"
+#include "pedersen.cpp"
+
+#define HIGH64(x) _mm_extract_epi64((block)x, 1)
+
 
 struct ffe {
 #ifndef FFE_SIMPLE
@@ -17,17 +23,23 @@ struct ffe {
     bool is_invalid() { return x == (u64)-1; }
 
     //Implementing addition and substraction and multiplication in the finite field
-    ffe& operator+= (ffe y) { x += y.x; if (x >= mod) x -= mod; return *this; }
-    ffe& operator-= (ffe y) { x -= y.x; if (x >  mod) x += mod; return *this; }
+    ffe& operator+= (ffe y) {
+        // if (x/2 + y.x/2 >= 1<<63) x -= mod;
+        u64 gap = mod - x;
+        if (y.x >= gap) x = y.x - gap;
+        else x += y.x;
+        if (x >= mod) x -= mod;
+        return *this;
+    }
+    ffe& operator-= (ffe y) { y.x > x? x = mod - y.x + x: x -= y.x; return *this; }
     ffe operator+ (ffe y) const { ffe z {*this}; z += y; return z; }
     ffe operator- (ffe y) const { ffe z {*this}; z -= y; return z; }
     
     ffe operator* (ffe y) const {
 #ifndef FFE_SIMPLE
         u128 z = (u128)x * y.x;
-        u64 w = (z & mod) + (z >> mod_pow);
-        if (w > mod) w -= mod;
-        return w;
+        while (z > (u128)mod) z -= (u128)mod;
+        return (u64)z;
 #else
         return (x * y.x) % mod;
 #endif
@@ -59,10 +71,10 @@ struct ffe {
 
     }
 };
-ffe operator+ (s64 x, ffe y) { return ffe{x} + y; }
-ffe operator- (s64 x, ffe y) { return ffe{x} - y; }
-ffe operator* (s64 x, ffe y) { return ffe{x} * y; }
-ffe operator/ (s64 x, ffe y) { return ffe{x} / y; }
+ffe operator+ (s32 x, ffe y) { return ffe{x} + y; }
+ffe operator- (s32 x, ffe y) { return ffe{x} - y; }
+ffe operator* (s32 x, ffe y) { return ffe{x} * y; }
+ffe operator/ (s32 x, ffe y) { return ffe{x} / y; }
 
 struct Polynomial { // Defining the Ring F[X]/(X^3)
     ffe a,b,c; // a * x**2 + b * x + c
@@ -86,11 +98,156 @@ struct Polynomial { // Defining the Ring F[X]/(X^3)
     // Evaluation on the polynomial in finite field
     ffe operator() (ffe x) const { return (a * x + b) * x + c; }
     // Degree reduction
-    Polynomial degree_reduced() const { return {0, a+b, c}; }
+    Polynomial degree_reduced() const { return {0, a + b, c}; }
 
     bool is_linear() { return a.x == 0; }
     bool is_constant() { return a.x == 0 and b.x == 0; }
 };
+
+class VOLECommitment;
+
+class Commitment{
+public:
+    enum Commit_Type: u8 {
+        VOLE, PEDERSEN
+    };
+    virtual void CommitEqual(Commitment* x) = 0;
+    virtual void CommitEqual(uint64_t x) = 0;
+    virtual Commitment* add(Commitment* x) = 0;
+    virtual Commitment* mult(Commitment* x) = 0;
+    virtual Commitment* mult(const uint64_t x) = 0;
+    virtual uint64_t reveal() = 0;
+    virtual uint64_t revealALICE() = 0;
+    virtual void check_zero() = 0;
+    virtual Commitment* negate() = 0;
+    virtual ~Commitment() {}
+};
+
+class VOLECommitment: public Commitment {
+public:
+
+    IntFp intfp;
+
+    VOLECommitment(): intfp() {}
+
+    VOLECommitment(uint64_t value, int party = PUBLIC) {this->intfp = IntFp(value, party);}
+
+    VOLECommitment(s8 value, int party = PUBLIC) {
+        if (value < 0) this->intfp = IntFp((uint64_t)(-value), party).negate();
+        else this->intfp = IntFp((uint64_t)value, party);
+    }
+
+    void CommitEqual(Commitment* x) override {
+        (this->intfp + (((VOLECommitment*)x)->intfp.negate())).reveal_zero();
+    }
+
+    void CommitEqual(uint64_t x) override {
+        (this->intfp + (IntFp(x).negate())).reveal_zero();
+    }
+
+    Commitment* add (Commitment* x) override {
+        VOLECommitment* ret = new VOLECommitment;
+        ret->intfp = this->intfp + ((VOLECommitment*)x)->intfp;
+        return ret;
+    }
+
+    Commitment* mult(Commitment* x) override {
+        VOLECommitment* ret = new VOLECommitment;
+        ret->intfp = this->intfp * ((VOLECommitment*)x)->intfp;
+        return ret;
+    }
+
+    Commitment* mult(uint64_t x) override {
+        VOLECommitment* ret = new VOLECommitment;
+        ret->intfp = this->intfp * x;
+        return ret;
+    }
+
+    uint64_t reveal() override {return this->intfp.reveal();}
+
+    uint64_t revealALICE() override {return HIGH64(this->intfp.value);}
+
+    Commitment* negate() override {
+        VOLECommitment* ret = new VOLECommitment;
+        ret->intfp = this->intfp.negate();
+        return ret;
+    }
+
+    void check_zero() override {this->intfp.reveal_zero();}
+};
+
+class PedersenCommitment: public Commitment {
+public:
+
+    BIGNUM *c_PUBLIC;
+    BIGNUM *r_ALICE;
+    BIGNUM *m_ALICE;
+
+    // void CommitEqual(Commitment* x) override {
+    //     (this->intfp + (((VOLECommitment*)x)->intfp.negate())).reveal_zero();
+    // }
+
+    // void CommitEqual(uint64_t x) override {
+    //     (this->intfp + (IntFp(x).negate())).reveal_zero();
+    // }
+
+    // Commitment* add (Commitment* x) override {
+    //     VOLECommitment* ret = new VOLECommitment;
+    //     ret->intfp = this->intfp + ((VOLECommitment*)x)->intfp;
+    //     return ret;
+    // }
+
+    // Commitment* mult(Commitment* x) override {
+    //     VOLECommitment* ret = new VOLECommitment;
+    //     ret->intfp = this->intfp * ((VOLECommitment*)x)->intfp;
+    //     return ret;
+    // }
+
+    // Commitment* mult(uint64_t x) override {
+    //     VOLECommitment* ret = new VOLECommitment;
+    //     ret->intfp = this->intfp * x;
+    //     return ret;
+    // }
+
+    // uint64_t reveal() override {return this->intfp.reveal();}
+
+    // uint64_t revealALICE() override {return HIGH64(this->intfp.value);}
+
+    // Commitment* negate() override {
+    //     VOLECommitment* ret = new VOLECommitment;
+    //     ret->intfp = this->intfp.negate();
+    //     return ret;
+    // }
+
+    // void check_zero() override {this->intfp.reveal_zero();}
+};
+
+Commitment* Commit(uint64_t value, int party = PUBLIC, u8 type = Commitment::VOLE){
+    if (type == Commitment::VOLE) {
+        VOLECommitment* ret = new VOLECommitment;
+        ret->intfp = IntFp(value, party);
+        return ret;
+    } else {
+        // PedersenCommitment* ret = new PedersenCommitment;
+        // BN_set_u64(ret->m_ALICE, value);
+        
+    }
+}
+
+Commitment* Commit(s8 value, int party = PUBLIC, u8 type = Commitment::VOLE){
+    if (type == Commitment::VOLE) {
+        VOLECommitment* ret = new VOLECommitment;
+        if (value < 0) {
+            ret->intfp = IntFp((uint64_t)(-value), party).negate();
+            return ret;
+        } else {
+            ret->intfp = IntFp(value, party);
+            return ret;
+        }
+    } else {
+        
+    }
+}
 
 void polynomial_print(Polynomial p) {
     bool first = true;
@@ -112,5 +269,31 @@ void polynomial_print(Polynomial p) {
     if (first or p.c.x) {
         if (not first) printf(" + ");
         printf("%llx", p.c.x);
+    }
+};
+
+void CommittedPoly_print(vector<Commitment*> p) {
+    bool first = true;
+    auto a = p[0]->reveal();
+    auto b = p[1]->reveal();
+    auto c = p[2]->reveal();
+    if (a) {
+        first = false;
+        if (a != 1) {
+            printf("%llx ", a);
+        }
+        printf(u8"x²");
+    }
+    if (b) {
+        if (not first) printf(" + ");
+        first = false;
+        if (b != 1) {
+            printf("%llx ", b);
+        }
+        printf(u8"x");
+    }
+    if (first or c) {
+        if (not first) printf(" + ");
+        printf("%llx", c);
     }
 }

@@ -20,6 +20,8 @@
 #include "server.cpp"
 #include "smvparser.cpp"
 
+int threads = 1, party, port, type = Commitment::VOLE;
+
 void args_print_usage(Array_t<u8> arg0) {
     printf("Usage:\n  ");
     array_fwrite(arg0);
@@ -76,6 +78,7 @@ struct Args {
     u8 mode = SOLVER;
     Array_t<u8> host;
     u16 port = 39411;
+    u16 party = 0;
 
     u8 bdd_flags = 0;
     u8 verifier_flags = 0;
@@ -134,6 +137,8 @@ void args_parse(Args* args, Array_t<Array_t<u8>> argv) {
                 state = 5;
             } else if (array_equal(arg, "--smv-steps"_arr)) {
                 state = 6;
+            } else if (array_equal(arg, "--party"_arr)) {
+                state = 7;
             } else if (array_equal(arg, "--no-skip-outer"_arr)) {
                 args->expr_flags |= Expr_flags::SKIP_OUTER;
             } else if (array_equal(arg, "--simple-quantifier"_arr)) {
@@ -205,8 +210,8 @@ void args_parse(Args* args, Array_t<Array_t<u8>> argv) {
             args->host = arg;
             state = 0;
         } else if (state == 3) {
-            args->port = number_parse<u16>(arg);
-            os_error_panic();
+            port = number_parse<u16>(arg);
+            // os_error_panic();
             state = 0;
         } else if (state == 4) {
             args->order = arg;
@@ -227,7 +232,10 @@ void args_parse(Args* args, Array_t<Array_t<u8>> argv) {
             args->steps = number_parse<s64>(arg);
             os_error_panic();
             state = 0;
-        } else {
+        } else if (state == 7) {
+            party = number_parse<u16>(arg);
+            state = 0;
+         } else {
             assert_false;
         }
     }
@@ -317,6 +325,7 @@ s64 main_instance(Args* args, Array_dyn<Expr>* out_exprs, Array_dyn<u8>* out_sta
     }
 
     if (args->format == Args::FORMAT_QDIMACS) {
+        // printf("-------------------I am a dimacs----------------\n");
         Dimacs dimacs;
         Dimacs_parse_args dimacs_args;
         if (args->fuzz_mode) {
@@ -352,84 +361,109 @@ s64 main_instance(Args* args, Array_dyn<Expr>* out_exprs, Array_dyn<u8>* out_sta
     }
 }
 
-int main(int argc, char** argv_) {
-    os_init();
+void init(Verifier* veri, Prover* prover, Array_t<Expr> exprs_qbc, s64 n_variables=-1, u8 debug_flags=0, u8 expr_flags = 0){
+    assert(prover->type == Prover::UNINITIALIZED);
+    prover->type = Prover::LOCAL;
+    memset(&prover->local, 0, sizeof(prover->local));
+    prover->local.store = {};
+
+    veri->debug_flags = debug_flags;
+    veri->expr_free.expr_free.size = 0;
+    veri->expr_free.expr_free_data.size = 0;
+    veri->expr_flags = expr_flags;
+
+    _convert_to_poly(veri, exprs_qbc);
+
+    assert(veri->assertions.data == nullptr);
+    veri->assertions = array_create<Array_dyn<Verifier::Assertion>>(veri->exprs.size);
+
+
+    if (n_variables == -1) {
+        n_variables = veri->expr_free.get(veri->exprs.size-1).size;
+    }
+    assert(n_variables >= veri->expr_free.get(veri->exprs.size-1).size);
+    veri->n_variables = n_variables;
     
+    s64 max_var = 0;
+    for (Expr expr: veri->exprs) {
+        if (expr.type == Expr::VAR and max_var < expr.var.var) {
+            max_var = expr.var.var;
+        }
+    }
+    veri->temp_assignment = array_create<ffe>(max_var+1);
+}
+
+int main(int argc, char** argv_) {
+    Args args;
+    Prover prover;
+    Verifier veri;
+    uint64_t counter = 0;
+    Array_dyn<u8> stats_instance;
+    Array_dyn<Expr> exprs;
+    s64 n_variables = -1;
+    BoolIO<NetIO> *ios[threads];
+
+    os_init();
+
     Array_t<Array_t<u8>> argv = array_create<Array_t<u8>>(argc);
     defer { array_free(&argv); };
     for (s64 i = 0; i < argc; ++i) {
         argv[i] = array_create_str(argv_[i]);
     }
 
-    Args args;
     args_parse(&args, argv);
 
-    if (args.mode == Args::SOLVER or args.mode == Args::VERIFIER) {
-        Prover prover;
-        defer { prover_free(&prover); };
-        if (args.mode == Args::SOLVER) {
-            prover_init_local(&prover, args.bdd_flags);
-        } else {
-            prover_init_network(&prover, args.host, args.port);
-        }
-
-        if (not args.no_progress) {
-            format_print("Loading qdimacs instance at %a\n", args.instance);
-        }
-
-        Array_dyn<u8> stats_instance;
-        Array_dyn<Expr> exprs;
-        s64 n_variables = -1;
-        defer { array_free(&exprs); };
-        s64 instance_size = main_instance(&args, &exprs, &stats_instance, &n_variables);
-
-        main_order(&args, exprs);
-        
-        if (args.fuzz_mode and global_os.status.bad()) return 2;
-        os_error_panic();
-        
-        Verifier veri;
-        defer { verifier_free(&veri); };
-        verifier_init(&veri, &prover, exprs, n_variables, args.verifier_flags);
-        
-        s64 code = verifier_sumcheck(&veri);
-        
-        u64 time_duration_total = os_now();
-
-        if (args.fuzz_mode) {
-            if (code == -1) abort();
-        } else {
-            format_print("%d\n", code);
-        }
-        
-        if (not args.no_stats) {
-            format_print("\nStatistics:\n");
-            format_print("  Instance size: .. %-10B\n", instance_size);
-            array_fwrite(stats_instance);
-            format_print("    QBC nodes:      %-10d\n", exprs.size);
-            format_print("      with degree:  %-10d\n", veri.exprs.size);
-            format_print("  Total time: ..... %-10T\n", time_duration_total);
-            format_print("    Verifier:       %-10T\n", veri.time_duration);
-            format_print("    Prover:         %-10T\n", prover.time_duration_calc + prover.time_duration_eval);
-            format_print("      calculate:    %-10T\n", prover.time_duration_calc);
-            format_print("      evaluate:     %-10T\n", prover.time_duration_eval);
-            format_print("  Bytes sent: ..... %-10B\n", prover.sizeDataSentToProver + prover.sizeDataToVerifier);
-            format_print("    To Prover:      %-10B\n", prover.sizeDataSentToProver);
-            format_print("    To Verifier:    %-10B\n", prover.sizeDataToVerifier);
-            if (args.mode == Args::SOLVER) {
-                Bdd_store* store = &prover.local.store;
-                format_print("  BDD store: ...... %-10B\n", store->size_store_max);
-                format_print("    Final nodes:    %-10d\n", store->bdds.size);
-                format_print("    Total nodes:    %-10d\n", store->nodes_store_max);
-            }
-        }
-        
-        return code == -1 ? 255 : 0;
-    } else if (args.mode == Args::PROVER) {
-        Server server;
-        server_run(&server, args.host, args.port);
-        
-    } else {
-        assert_false;
+    for (int i = 0; i < threads; ++i) {
+        ios[i] = new BoolIO<NetIO>(
+            new NetIO(party == ALICE ? nullptr : "127.0.0.1", port + i),
+            party == ALICE);
     }
+
+    defer { array_free(&exprs); };
+    s64 instance_size = main_instance(&args, &exprs, &stats_instance, &n_variables);
+
+    defer { prover_free(&prover); };
+    defer { verifier_free(&veri); };
+
+    main_order(&args, exprs);
+    init(&veri, &prover, exprs, n_variables, args.verifier_flags, args.expr_flags);
+
+    u64 begin = os_now();
+    if (party == ALICE) prover_calculate(&prover, veri.exprs);
+    prover.time_duration_calc += os_now() - begin;
+    // prover solve time / IP time / ZK time (VOLE: different network / NIZK: proof size)
+
+    begin = os_now();
+
+    if (type == Commitment::VOLE) setup_zk_arith<BoolIO<NetIO>>(ios, threads, party);
+    // else setup_perdersen(ios[0], party);
+
+    bool code = sumcheck(&veri, &prover, ios[0], party);
+    if (!code) return 255;
+
+    prover.time_duration_eval += os_now() - begin;
+
+    finalize_zk_arith<BoolIO<NetIO>>();
+    for (int i = 0; i < threads; ++i) {
+        counter += ios[i]->counter;
+        delete ios[i]->io;
+        delete ios[i];
+    }
+        
+    format_print("\nStatistics:\n");
+    format_print("  Instance size: .. %-10B\n", instance_size);
+    // array_fwrite(stats_instance);
+    // format_print("    QBC nodes:      %-10d\n", exprs.size);
+    // format_print("      with degree:  %-10d\n", veri.exprs.size);
+    format_print("  Solving time:    %-10T\n", prover.time_duration_calc);
+    format_print("  Proving time:     %-10T\n", prover.time_duration_eval);
+    format_print("  Bytes sent: ..... %-10B\n", counter);
+    if (args.mode == Args::SOLVER) {
+        Bdd_store* store = &prover.local.store;
+        format_print("  BDD store: ...... %-10B\n", store->size_store_max);
+        format_print("    Final nodes:    %-10d\n", store->bdds.size);
+        format_print("    Total nodes:    %-10d\n", store->nodes_store_max);
+    }
+
+    return 0;
 }

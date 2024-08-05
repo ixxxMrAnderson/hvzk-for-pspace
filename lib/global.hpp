@@ -29,8 +29,8 @@ void simple_swap(T* a, T* b) {
     *a = *b;
     *b = tmp;
 }
-template <typename T> T min(T a, T b) { return a < b ? a : b; }
-template <typename T> T max(T a, T b) { return a > b ? a : b; }
+// template <typename T> T min(T a, T b) { return a < b ? a : b; }
+// template <typename T> T max(T a, T b) { return a > b ? a : b; }
 
 // Defer macro. The idea is based on Jonathan Blow's code at https://pastebin.com/3YvWQa5c, although
 // the code has been written from scratch.

@@ -53,83 +53,19 @@ void prover_free(Prover* prover) {
     }
 }
 
-void prover_init_local(Prover* prover, u8 flags) {
-    assert(prover->type == Prover::UNINITIALIZED);
-    prover->type = Prover::LOCAL;
-    memset(&prover->local, 0, sizeof(prover->local));
-    prover->local.store = {};
-    prover->local.store.debug_flags = flags;
+void prover_calculate(Prover* prover_, Array_t<Expr> exprs) {    
+    auto prover = &prover_->local;
+    bdd_init(&prover->store, exprs);
+    bdd_calculate_all(&prover->store);
 }
 
-void prover_init_network(Prover* prover, Array_t<u8> ip, u16 port) {
-    assert(prover->type == Prover::UNINITIALIZED);
-    prover->type = Prover::NETWORK;
-    Prover_network* nprover = &prover->network;
-    memset(nprover, 0, sizeof(*nprover));
-    
-    bzero((char*)&(nprover->sendSockAddr), sizeof(nprover->sendSockAddr));
-    nprover->sendSockAddr.sin_family = AF_INET; //Using IPV4
-
-    assert(*ip.end() == 0);
-    inet_pton(AF_INET, (char*)ip.data, &(nprover->sendSockAddr.sin_addr));
-    nprover->sendSockAddr.sin_port = htons(port);
-    nprover->clientSd = socket(AF_INET, SOCK_STREAM, 0);
-
-    int status = connect(nprover->clientSd, (sockaddr*) &(nprover->sendSockAddr), sizeof(nprover->sendSockAddr));
-    while(status < 0){
-        status = connect(nprover->clientSd, (sockaddr*) &(nprover->sendSockAddr), sizeof(nprover->sendSockAddr));
-        printf("Connection to the server FAILED!\n");
+void prover_assignment_set(Prover* prover_, u32 slot, Assignment assign) {    
+    auto prover = &prover_->local;
+    auto assignments = &prover->store.evaluation_cache.assignments;
+    if (slot >= assignments->size) {
+        array_resize(assignments, slot+1);
     }
-    printf("Connected to the server!\n");
-}
-
-void prover_calculate(Prover* prover_, Array_t<Expr> exprs) {
-    u64 begin = os_now();
-    
-    if (prover_->type == Prover::LOCAL) {
-        auto prover = &prover_->local;
-        bdd_init(&prover->store, exprs);
-        bdd_calculate_all(&prover->store);
-        
-    } else if (prover_->type == Prover::NETWORK) {
-        auto prover = &prover_->network;
-        Message newmsg{MessageType::calculating, 0, 0, 0, exprs.size};
-        prover->msg = newmsg;
-        size_t len{sizeof(newmsg)};
-        send(prover->clientSd, &prover->msg, len, 0);
-        send(prover->clientSd, exprs.data, exprs.size * sizeof(Expr), 0);
-        
-    } else {
-        assert_false;
-    }
-
-    // Do not count the size of the instance towards the certificate
-    //prover_->sizeDataSentToProver += sizeof(exprs.size) + exprs.size * sizeof(Expr);
-    prover_->time_duration_calc += os_now() - begin;
-}
-
-void prover_assignment_set(Prover* prover_, u32 slot, Assignment assign) {
-    u64 begin = os_now();
-    defer { prover_->time_duration_eval += os_now() - begin; };
-    
-    if (prover_->type == Prover::LOCAL) {
-        auto prover = &prover_->local;
-        auto assignments = &prover->store.evaluation_cache.assignments;
-        if (slot >= assignments->size) {
-            array_resize(assignments, slot+1);
-        }
-        (*assignments)[slot] = assign;
-        
-    } else if (prover_->type == Prover::NETWORK) {
-        Prover_network* prover = &prover_->network;
-        Message newmsg{MessageType::assignementSet, 0, 0, slot, sizeof(Assignment)};
-        prover->msg = newmsg;
-        size_t len {sizeof(newmsg)};
-        send(prover->clientSd, &(prover->msg), len, 0);
-        send(prover->clientSd, &assign, sizeof(Assignment) , 0);
-    }
-
-    prover_->sizeDataSentToProver += sizeof(slot) + sizeof(Assignment);
+    (*assignments)[slot] = assign;
 }
 
 void before_evaluating(Array_dyn<Assignment> assignments, Array_t<ffe> temp_assignment, Array_dyn<u64> temp_set, u32 assignment) {
@@ -145,30 +81,19 @@ void before_evaluating(Array_dyn<Assignment> assignments, Array_t<ffe> temp_assi
     }
 }
 
-Polynomial prover_evaluate(Prover* prover_, u32 expr, u32 assignment) {
-    u64 begin = os_now();
+vector<Commitment*> prover_evaluate(Prover* prover_, u32 expr, u32 assignment, int party, u8 type) {
     Polynomial result;
-    
-    if (prover_->type == Prover::LOCAL) {
+    vector<Commitment*> ret;
+    // printf("in prover eval\n");
+    if (party == ALICE) {
         auto prover = &prover_->local;
         result = bdd_evaluate_expr(&prover->store, expr, assignment);
-        
-    } else if (prover_->type == Prover::NETWORK) {
-        Prover_network* prover = &prover_->network;
-        Message newmsg{MessageType::evaluating, expr, assignment, 0, 0};
-        prover->msg = newmsg;
-        size_t len {sizeof(newmsg)};
-        send(prover->clientSd, &(prover->msg), len, 0);
-        //send(prover->clientSd, assignment.data, assignment.size * sizeof(ffe),0);
-        recv(prover->clientSd, (Polynomial*)&(prover->res), sizeof(Polynomial),0);
-        result = prover->res;
-        
-    } else {
-        assert_false;
     }
-    
-    prover_->time_duration_eval += os_now() - begin;
-    prover_->sizeDataSentToProver += sizeof(expr) + sizeof(assignment);
-    prover_->sizeDataToVerifier += sizeof(Polynomial);
-    return result;
+
+    ret.push_back(Commit(result.a.x, party, type));
+    ret.push_back(Commit(result.b.x, party, type));
+    ret.push_back(Commit(result.c.x, party, type));
+    // printf("out prover eval\n");
+
+    return ret;
 }

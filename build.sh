@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 CXXFLAGS="-std=c++14 -fno-exceptions -fno-rtti"
 CXXFLAGS_WARN="-fmax-errors=2 -Wall -Wextra -Wno-class-memaccess -Wno-sign-conversion -Wno-unused-variable -Wno-sign-compare -Wno-write-strings -Wno-unused-parameter -Wno-comment"
 CXXFLAGS_COMPAT="-static-libgcc -static-libstdc++"
-LDFLAGS="-I/opt/homebrew/opt/openssl -lcrypto -lssl"
+LDFLAGS="-I/opt/homebrew/opt/openssl@3 -lcrypto -lssl"
 LIBPROFILER=/usr/local/lib/libprofiler.so
 
 NAME=solver

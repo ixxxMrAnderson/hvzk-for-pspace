@@ -265,8 +265,16 @@ void expr_reduce(Array_dyn<Expr>* exprs, u8 op, s32* inout_id0, s32 id1) {
     if (*inout_id0 == 0x7fffffff) {
         *inout_id0 = id1;
     } else {
+        // if (*inout_id0<0 && op == Expr::AND) printf("wrong: %d AND %d\n", *inout_id0, id1);
+        // if (id1<0 && op == Expr::AND) printf("wrong: %d AND %d\n", *inout_id0, id1);
         if (*inout_id0 < 0) { op = expr_op_flip(op, 0); *inout_id0 = -*inout_id0; }
         if (id1        < 0) { op = expr_op_flip(op, 1); id1 = -id1; }
+        // not x or y = imply
+        // x or not y = implied
+        // not x or not y = nand
+        // not x and y = nimplied
+        // x and not y = nimply
+        // not x and not y = nor
         array_push_back(exprs, Expr::make_binop(op, *inout_id0, id1));
         *inout_id0 = exprs->size-1;
     }
@@ -274,6 +282,7 @@ void expr_reduce(Array_dyn<Expr>* exprs, u8 op, s32* inout_id0, s32 id1) {
 
 void expr_reduce_finalize(Array_dyn<Expr>* exprs, s32* inout_id, bool value_if_empty) {
     if (*inout_id == 0x7fffffff) {
+        // printf("-------what is this %d-------\n", *inout_id);
         if (value_if_empty) {
             array_push_back(exprs, {Expr::TRUE});
             *inout_id = exprs->size-1;
@@ -298,6 +307,7 @@ u32 expr_make_quant(Array_dyn<Expr>* exprs, u8 op, u32 var, u32 expr_it) {
 
 void _expr_from_dimacs_simple(Array_dyn<Expr>* exprs, Dimacs dimacs, bool skip_outer) {
     array_push_back(exprs, {Expr::FALSE});
+    printf("---------i am a dimacs simple-------------\n");
     for (s64 i = 1; i <= dimacs.n_variables; ++i) {
         array_push_back(exprs, Expr::make_var(i));
     }
@@ -313,13 +323,16 @@ void _expr_from_dimacs_simple(Array_dyn<Expr>* exprs, Dimacs dimacs, bool skip_o
     }
     expr_reduce_finalize(exprs, &last_clause, true);
     if (exprs->size > last_clause+1) exprs->size = last_clause+1;
-        
-    for (s64 i = dimacs.n_quantifiers-1; i >= skip_outer; --i) {
-        u8 op = dimacs.quantifier_types[i] == Dimacs::EXISTS ? Expr::OR : Expr::AND;
-        for (s32 var: dimacs.quantifier_vars(i)) {
-            last_clause = expr_make_quant(exprs, op, var, last_clause);
-        }
-    }
+    
+    // printf("-------n_quantifiers: %d-------\n", dimacs.n_quantifiers);
+    // expr_print(*exprs);
+    // for (s64 i = dimacs.n_quantifiers-1; i >= skip_outer; --i) {
+    //     u8 op = dimacs.quantifier_types[i] == Dimacs::EXISTS ? Expr::OR : Expr::AND;
+    //     for (s32 var: dimacs.quantifier_vars(i)) {
+    //         last_clause = expr_make_quant(exprs, op, var, last_clause);
+    //     }
+    // }
+    // expr_print(*exprs);
 }
 
 s32 expr_to_formula(Array_t<Expr> exprs, Dimacs* out_dimacs) {
@@ -395,6 +408,7 @@ void _expr_debug_check_instance(Array_t<Expr> exprs, Dimacs dimacs) {
 void _expr_from_dimacs_complicated(Array_dyn<Expr>* exprs, Dimacs dimacs, bool skip_outer) {
     Array_dyn<u32> clusters;
     defer { array_free(&clusters); };
+    // printf("---------i am a dimacs complicated-------------");
 
     Expr_free expr_free;
     defer { expr_free_free(&expr_free); };

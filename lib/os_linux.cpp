@@ -83,7 +83,10 @@ u64 os_now() {
 }
 
 bool os_status_initp(Status** statusp) {
-    if (*statusp == nullptr) *statusp = &global_os.status;
+    if (*statusp == nullptr) {
+        *statusp = &global_os.status;
+        // printf("in nullprint: %d/%d\n", &global_os.status, (**statusp).bad());
+    } 
     return (**statusp).bad();
 }
 

@@ -318,7 +318,9 @@ void _dimacs_parse(Dimacs_parser* parser) {
 }
 
 void _dimacs_quantifiers_fix(Dimacs_parser* parser) {
+    // printf("_______in dimacs fix______\n");
     if (parser->status->bad()) return;
+    // printf("_______in dimacs fix______\n");
     
     parser->vars_quantified.size = 0;
     array_append_zero(&parser->vars_quantified, (parser->result->n_variables+1 + 63) / 64);
@@ -330,6 +332,7 @@ void _dimacs_quantifiers_fix(Dimacs_parser* parser) {
     for (s64 var = parser->result->n_variables+1; var % 64; ++var) {
         bitset_set(&parser->vars_quantified, var, true);
     }
+    // printf("_______in dimacs fix______\n");
 
     s64 count = 0;
     for (u64 i: parser->vars_quantified) count += __builtin_popcountll(~i);
@@ -351,6 +354,7 @@ void _dimacs_quantifiers_fix(Dimacs_parser* parser) {
         if (bitset_get(parser->vars_quantified, var)) continue;
         parser->result->quantifier_vars_data[i++] = var;
     }
+    // printf("_______in dimacs fix______\n");
 }
 
 void _dimacs_counts_fix(Dimacs_parser* parser) {
@@ -375,6 +379,7 @@ struct Dimacs_parse_args {
 void dimacs_parse_try(Dimacs* dimacs, Array_t<u8> path, Dimacs_parse_args* args=nullptr, Status* status=nullptr) {
     if (os_status_initp(&status)) return;
     dimacs_init(dimacs);
+    // printf("_______in dimacs parse try______\n");
 
     Dimacs_parser parser;
     defer { _dimacs_parser_free(&parser); };
@@ -393,6 +398,7 @@ void dimacs_parse_try(Dimacs* dimacs, Array_t<u8> path, Dimacs_parse_args* args=
         _dimacs_scan(&parser);
         _dimacs_parse(&parser);
     }
+    // printf("_______in dimacs parse try______\n");
     _dimacs_scan_eof(&parser);
     _dimacs_parse(&parser);
 
@@ -409,6 +415,7 @@ void dimacs_parse_try(Dimacs* dimacs, Array_t<u8> path, Dimacs_parse_args* args=
             return os_error_printf(parser.status, 230104002, "too many clauses (is %lld, must be at most %lld)\n", dimacs->n_clauses, args->limit_clauses);
         }
     }
+    // printf("_______in dimacs parse try______\n");
     _dimacs_quantifiers_fix(&parser);
 }
 void dimacs_parse(Dimacs* dimacs, Array_t<u8> path) {
