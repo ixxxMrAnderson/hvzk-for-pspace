@@ -38,8 +38,9 @@ struct ffe {
     ffe operator* (ffe y) const {
 #ifndef FFE_SIMPLE
         u128 z = (u128)x * y.x;
-        while (z > (u128)mod) z -= (u128)mod;
-        return (u64)z;
+        u64 w = (z & mod) + (z >> mod_pow);
+        if (w > mod) w -= mod;
+        return w;
 #else
         return (x * y.x) % mod;
 #endif
@@ -234,20 +235,20 @@ Commitment* Commit(uint64_t value, int party = PUBLIC, u8 type = Commitment::VOL
     }
 }
 
-Commitment* Commit(s8 value, int party = PUBLIC, u8 type = Commitment::VOLE){
-    if (type == Commitment::VOLE) {
-        VOLECommitment* ret = new VOLECommitment;
-        if (value < 0) {
-            ret->intfp = IntFp((uint64_t)(-value), party).negate();
-            return ret;
-        } else {
-            ret->intfp = IntFp(value, party);
-            return ret;
-        }
-    } else {
+// Commitment* Commit(s8 value, int party = PUBLIC, u8 type = Commitment::VOLE){
+//     if (type == Commitment::VOLE) {
+//         VOLECommitment* ret = new VOLECommitment;
+//         if (value < 0) {
+//             ret->intfp = IntFp((uint64_t)(-value), party).negate();
+//             return ret;
+//         } else {
+//             ret->intfp = IntFp(value, party);
+//             return ret;
+//         }
+//     } else {
         
-    }
-}
+//     }
+// }
 
 void polynomial_print(Polynomial p) {
     bool first = true;

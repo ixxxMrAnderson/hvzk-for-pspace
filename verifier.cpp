@@ -416,13 +416,7 @@ bool sumcheck(Verifier* veri, Prover* prover, BoolIO<NetIO>* io, int party, u8 t
             // format_print("---------------%d\n", p[0]->add(p[1])->mult(e_var_value.x)->add(p[2])->add(a.value->negate())->reveal());
             uint64_t ra=p[0]->reveal(), rb=p[1]->reveal(), rc=p[2]->reveal();
             ffe fa((u64)p[0]->reveal()), fb((u64)p[1]->reveal()), fc((u64)p[2]->reveal());
-            // if ((ra+rb)*e_var_value.x+rc!=a.value->reveal()) return 0;
-            if ((fa+fb) * e_var_value + fc != ffe((u64)a.value->reveal())) {
-                u128 z = 1<<12;
-                printf("%llu\n", z);
-                printf("ffe wrong\n");
-                return 0;
-            }
+            
             ((p[0]->add(p[1]))->mult(e_var_value.x)->add(p[2]))->CommitEqual(a.value);
 
             // HVZK: Prover homomorphically computes the commitment of 'p(r)'
