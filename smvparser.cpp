@@ -327,42 +327,42 @@ void smvparser_print_stack(Smv_parser* parser) {
     }
 }
 
-void smvparser_print_bexpr(Smv_parser* parser, s64 bexpr_it) {
-    if (parser->status->bad()) return;
-    printf("    %4lld  ", bexpr_it);
-    auto bexpr = parser->pending_bexpr[bexpr_it];
-    if (bexpr.type == Smv_parser::BEXPR_FALSE) {
-        printf("false");
-    } else if (bexpr.type == Smv_parser::BEXPR_TRUE) {
-        printf("true");
-    } else if (bexpr.type == Smv_parser::BEXPR_LOOKUP) {
-        format_print("lookup %a", parser->get_identifier(bexpr.identifier));
-    } else if (bexpr.type == Smv_parser::BEXPR_BINOP) {
-        format_print("%s %d, %d", Expr::binop_names[bexpr.binop], bexpr.child0, bexpr.child1);
-    } else if (bexpr.type == Smv_parser::BEXPR_NEXT) {
-        format_print("next %d", bexpr.child0);
-    } else if (bexpr.type == Smv_parser::BEXPR_NEGATE) {
-        format_print("NEG %d", bexpr.child0);
-    } else {
-        assert_false;
-    }
-}
+// void smvparser_print_bexpr(Smv_parser* parser, s64 bexpr_it) {
+//     if (parser->status->bad()) return;
+//     printf("    %4lld  ", bexpr_it);
+//     auto bexpr = parser->pending_bexpr[bexpr_it];
+//     if (bexpr.type == Smv_parser::BEXPR_FALSE) {
+//         printf("false");
+//     } else if (bexpr.type == Smv_parser::BEXPR_TRUE) {
+//         printf("true");
+//     } else if (bexpr.type == Smv_parser::BEXPR_LOOKUP) {
+//         format_print("lookup %a", parser->get_identifier(bexpr.identifier));
+//     } else if (bexpr.type == Smv_parser::BEXPR_BINOP) {
+//         format_print("%s %d, %d", Expr::binop_names[bexpr.binop], bexpr.child0, bexpr.child1);
+//     } else if (bexpr.type == Smv_parser::BEXPR_NEXT) {
+//         format_print("next %d", bexpr.child0);
+//     } else if (bexpr.type == Smv_parser::BEXPR_NEGATE) {
+//         format_print("NEG %d", bexpr.child0);
+//     } else {
+//         assert_false;
+//     }
+// }
 
-void smvparser_print_pending_one(Smv_parser* parser, Smv_parser::Pending pen) {
-    if (parser->status->bad()) return;
-    format_print("%a := [%d]\n", parser->get_identifier(pen.identifier), pen.dependencies_left);
-    for (s64 i = pen.exprs.beg; i < pen.exprs.beg + pen.exprs.size; ++i) {
-        smvparser_print_bexpr(parser, i);
-        puts("");
-    }
-}
+// void smvparser_print_pending_one(Smv_parser* parser, Smv_parser::Pending pen) {
+//     if (parser->status->bad()) return;
+//     format_print("%a := [%d]\n", parser->get_identifier(pen.identifier), pen.dependencies_left);
+//     for (s64 i = pen.exprs.beg; i < pen.exprs.beg + pen.exprs.size; ++i) {
+//         smvparser_print_bexpr(parser, i);
+//         puts("");
+//     }
+// }
 
-void smvparser_print_pending(Smv_parser* parser) {
-    if (parser->status->bad()) return;
-    for (auto pen: parser->pending) {
-        smvparser_print_pending_one(parser, pen);
-    }
-}
+// void smvparser_print_pending(Smv_parser* parser) {
+//     if (parser->status->bad()) return;
+//     for (auto pen: parser->pending) {
+//         smvparser_print_pending_one(parser, pen);
+//     }
+// }
 
 bool smvparser_match_try(Smv_parser* parser, u16 type, Smv_parser::Token* out_tok=nullptr) {
     if (parser->status->bad()) return false;
@@ -942,8 +942,8 @@ void smvparser_resolve_pending(Smv_parser* parser) {
             auto pen = parser->pending[pending_left[i]];
             if (pen.dependencies_left) continue;
 
-            if (parser->result->flags & Smv_parser::DEBUG_PRINT_PENDING)
-                format_print("Generating expressions for %a\n", parser->get_identifier(pen.identifier));
+            // if (parser->result->flags & Smv_parser::DEBUG_PRINT_PENDING)
+            //     format_print("Generating expressions for %a\n", parser->get_identifier(pen.identifier));
 
             hashmap_clear(&map_bexpr);
             {s64 bexpr_it = pen.exprs.beg;
@@ -1070,13 +1070,13 @@ void smvparser_parse(Smv_parser_result* result, Array_t<u8> path, Status* status
 
     smvparser_scan(&parser, input);
     if (result->flags & Smv_parser::DEBUG_PRINT_TOKENS)
-        smvparser_print_tokens(&parser);
+        // smvparser_print_tokens(&parser);
     
     smvparser_init_pending(&parser);
     
     smvparser_parse_module(&parser);
     if (result->flags & Smv_parser::DEBUG_PRINT_PENDING)
-        smvparser_print_pending(&parser);
+        // smvparser_print_pending(&parser);
     
     smvparser_resolve_pending(&parser);
 }

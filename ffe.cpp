@@ -1,5 +1,6 @@
 #include "emp-tool/emp-tool.h"
 #include "emp-zk/emp-zk-arith/emp-zk-arith.h"
+// #include "pedersen.cpp"
 
 #define HIGH64(x) _mm_extract_epi64((block)x, 1)
 
@@ -16,7 +17,7 @@ struct ffe {
     constexpr ffe(): x{0} {}
     constexpr ffe(s32 x_): x{x_ < 0 ? x_ + mod : x_} {}
     constexpr ffe(u64 x_): x{x_} {x %= mod;}
-    // constexpr ffe(s64 x_): x{0} {x_ %= (s64)mod; x = x_ < 0 ? x_+mod : x_;}
+    constexpr ffe(s64 x_): x{0} {x_ %= (s64)mod; x = x_ < 0 ? x_+mod : x_;}
 
     static constexpr ffe make_invalid() { ffe x; x.x = -1; return x; }
     bool is_invalid() { return x == (u64)-1; }
@@ -233,6 +234,20 @@ Commitment* Commit(uint64_t value, int party = PUBLIC, u8 type = Commitment::VOL
     }
 }
 
+Commitment* Commit(s8 value, int party = PUBLIC, u8 type = Commitment::VOLE){
+    if (type == Commitment::VOLE) {
+        VOLECommitment* ret = new VOLECommitment;
+        if (value < 0) {
+            ret->intfp = IntFp((uint64_t)(-value), party).negate();
+            return ret;
+        } else {
+            ret->intfp = IntFp(value, party);
+            return ret;
+        }
+    } else {
+        
+    }
+}
 
 void polynomial_print(Polynomial p) {
     bool first = true;

@@ -275,9 +275,6 @@ void main_order(Args* args, Array_t<Expr> exprs) {
         array_push_back(&order_use, 0);
         --order_use.size;
 
-        if (not args->no_progress) {
-            format_print("Looking for variable order in %a ... ", order_use);
-        }
 
         if (os_access(order_use, Os_codes::ACCESS_READ)) {
             if (not args->no_progress) {
@@ -293,7 +290,7 @@ void main_order(Args* args, Array_t<Expr> exprs) {
     } else if (args->order.size) {
         array_append(&order_use, args->order);
         if (not args->no_progress) {
-            format_print("Using variable order from %a\n", order_use);
+            printf("Using variable order from %a\n", order_use);
         }
     }
 
@@ -446,19 +443,13 @@ int main(int argc, char** argv_) {
         delete ios[i];
     }
         
-    format_print("\nStatistics:\n");
-    format_print("  Instance size: .. %-10B\n", instance_size);
-    // array_fwrite(stats_instance);
-    // format_print("    QBC nodes:      %-10d\n", exprs.size);
-    // format_print("      with degree:  %-10d\n", veri.exprs.size);
-    format_print("  Solving time:    %-10T\n", prover.time_duration_calc);
-    format_print("  Proving time:     %-10T\n", prover.time_duration_eval);
-    format_print("  Bytes sent: ..... %-10B\n", counter);
+    printf("  Instance size: .. %.2fKB\n", (double)instance_size/1024);
+    printf("  Solving time:    %.2fs\n", (double)prover.time_duration_calc/1000000000);
+    printf("  Proving time:     %.2fs\n", (double)prover.time_duration_eval/1000000000);
+    printf("  Bytes sent: ..... %.2fMB\n", (double)counter/1024/1024);
     if (args.mode == Args::SOLVER) {
         Bdd_store* store = &prover.local.store;
-        format_print("  BDD store: ...... %-10B\n", store->size_store_max);
-        format_print("    Final nodes:    %-10d\n", store->bdds.size);
-        format_print("    Total nodes:    %-10d\n", store->nodes_store_max);
+        printf("  BDD store: ...... %ldMB\n", (double)store->size_store_max/1024/1024);
     }
 
     return 0;
